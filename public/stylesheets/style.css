@@ -1,0 +1,14 @@
+
+
+.score.unfinished {
+    color: red !important;
+
+}
+
+.score.unfinished::before {
+    content: "( ";
+}
+
+.score.unfinished::after {
+    content: " )";
+}
