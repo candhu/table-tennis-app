@@ -2,13 +2,14 @@
 
 .score.unfinished {
     color: red !important;
+    font-size: smaller !important;
 
 }
 
 .score.unfinished::before {
-    content: "( ";
+    content: "(";
 }
 
 .score.unfinished::after {
-    content: " )";
+    content: ")";
 }

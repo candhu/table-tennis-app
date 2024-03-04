@@ -202,9 +202,9 @@ function populateFixturesMatrix() {
                 scoreDiv.classList.add('score');
 
                 if (!reverseFix) {
-                    scoreDiv.textContent = `${match.scores[0]} - ${match.scores[1]} `;
+                    scoreDiv.textContent = `${match.scores[0]} - ${match.scores[1]}`;
                 } else {
-                    scoreDiv.textContent = `${match.scores[1]} - ${match.scores[0]} `;
+                    scoreDiv.textContent = `${match.scores[1]} - ${match.scores[0]}`;
                 }
 
                 var matchScore = `${match.scores[0]}${match.scores[1]}`
