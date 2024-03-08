@@ -3,8 +3,6 @@ const leagueTab = document.getElementById('leagueTab');
 
 // Function to update UI 
 async function displayLeague() {
-    await fetchPlayers();
-    await fetchFixtures();
 
     // Draw empty table
     populateLeague();
@@ -25,13 +23,6 @@ function populateLeague() {
     const tabBody = table.createTBody();
 
     headerRow.insertCell().textContent = ""; // Empty cell for player names
-
-    // // Add player names to the first column
-    // for (const player of players) {
-    //     const cell = headerRow.insertCell();
-    //     cell.textContent = player.name;
-    // }
-
 
     // Add table headers for "Matches Played", "Wins", "Draws", and "Points"
     const statHeaders = ["Played", "Wins", "Draws", "Points"];
@@ -60,8 +51,9 @@ function populateLeague() {
     fixtures.forEach((fixture) => {
         const player1 = fixture.players[0];
         const player2 = fixture.players[1];
+        // console.log(fixture.id);
 
-        for (const match of fixture.matches) {
+        fixture.matches.forEach((match) => {
             const p1index = playerStats.findIndex(player => player.playerID === player1);
             const p2index = playerStats.findIndex(player => player.playerID === player2);
 
@@ -90,7 +82,7 @@ function populateLeague() {
                 }
             }
 
-        }
+        })
     })
 
     // Sort the array by points, then wins, then name
@@ -127,6 +119,7 @@ function populateLeague() {
 
 displayLeague();
 
-// Set up polling timer
-const pollingInterval = 15000; // 15 seconds
-setInterval(displayLeague, pollingInterval);
+function refreshUI() {
+    displayLeague();
+}
+

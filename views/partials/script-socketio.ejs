@@ -1,0 +1,15 @@
+<script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+<script>
+  const socket = io();
+
+  socket.on('fixturesUpdate', newData => {
+    //  console.log('New Fixtures recv:', newData);
+    fixtures = newData;
+    refreshUI();
+  });
+  socket.on('playersUpdate', newData => {
+    // console.log('New Players recv:', newData);
+    players = newData;
+    refreshUI();
+  });
+</script>

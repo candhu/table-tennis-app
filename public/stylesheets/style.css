@@ -13,3 +13,7 @@
 .score.unfinished::after {
     content: ")";
 }
+
+.invalid-feedback {
+    font-size: 0.7em !important;
+}

@@ -1,22 +1,16 @@
-var players = {};
-var fixtures = {};
+var players = [];
+var fixtures = [];
 
-async function fetchPlayers() {
+async function putScores(fixtureData) {
     try {
-        const response = await fetch('/data/getPlayers');
-        players = await response.json();
-
-    } catch (error) {
-        console.error(error);
-    }
-}
-
-async function fetchFixtures() {
-    try {
-        const response = await fetch('/data/getFixtures');
-        fixtures = await response.json();
-
-    } catch (error) {
-        console.error(error);
+        const response = await fetch('data/saveFixtureScores', {
+            method: "POST",
+            body: JSON.stringify(fixtureData),
+            headers: {
+                "Content-type": "application/json; charset=UTF-8"
+            }
+        });
+    }catch(error){
+        close.error(error);
     }
 }

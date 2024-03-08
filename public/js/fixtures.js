@@ -20,31 +20,58 @@ scoresForm.addEventListener('submit', function (e) {
     e.preventDefault(); //to prevent form submission
 
     const formData = new FormData(scoresForm);
+    const modalScores = scoresForm.querySelectorAll('.modal-score');
+    const scoreInputs = scoresForm.querySelectorAll('.modal-score-input');
     var reverseFix = scoresModal.dataset.modalInverse === 'true';
 
-    // console.log(formData);
-    // for (const [name, value] of formData.entries()) {
-    //     console.log(name, value);
-    //   };
-
-    // return;
-
     //scoresForm.checkValidity()
+    let isValid = true; // Flag to track overall validity
+
+    // Validate the entered score values
+    scoreInputs.forEach((input) => {
+        const inputValue = input.value.trim();
+        let errorMessage = input.parentElement.querySelector(".invalid-feedback");
+
+        if (inputValue !== "" && (isNaN(inputValue) || parseInt(inputValue) < 0 || parseInt(inputValue) > 3)) {
+            isValid = false; // Set flag to false if any input is invalid
+
+            // Add error styling and message
+            input.classList.add("is-invalid");
+            if (errorMessage === null) {
+                errorMessage = document.createElement("div");
+            }
+            errorMessage.classList.add("invalid-feedback");
+            errorMessage.textContent = "Please enter a number between 0 and 3.";
+            input.parentElement.appendChild(errorMessage);
+        } else {
+            // Remove error styling and message if previously added
+            input.classList.remove("is-invalid");
+            if (errorMessage) {
+                errorMessage.remove();
+            }
+        }
+    });
+
+    if (!isValid) {
+        return; // Prevent form submission if any input is invalid
+    }
 
     //Save data
     const fixtureJSON = {
-        ID: scoresModal.dataset.modalFixtureId,
+        id: scoresModal.dataset.modalFixtureId,
         players: [scoresModal.dataset.modalPlayer1, scoresModal.dataset.modalPlayer2],
         matches: []
     };
 
-    const modalScores = scoresForm.querySelectorAll('.modal-score');
     let counter = 0;
     modalScores.forEach((modalScore) => {
-        fixtureJSON.matches.push({
-            ID: modalScore.dataset.modalMatchId,
-            scores: (!reverseFix) ? [formData.get(`p1s${counter}`)-0, formData.get(`p2s${counter}`)-0] : [formData.get(`p2s${counter}`)-0, formData.get(`p1s${counter}`)-0]
-        });
+        let p1score = formData.get(`p1s${counter}`) - 0;
+        let p2score = formData.get(`p2s${counter}`) - 0;
+        if ((p1score + p2score) > 0) {
+            fixtureJSON.matches.push({
+                scores: (!reverseFix) ? [p1score, p2score] : [p2score, p1score]
+            });
+        }
         counter++;
     });
 
@@ -58,18 +85,8 @@ scoresForm.addEventListener('submit', function (e) {
     modal.hide();
 });
 
-async function saveScores(fixtureJSON) {
-
-    //    console.log(JSON.stringify(fixtureJSON, null, 2));
-
-    const response = await fetch('data/saveFixtureScores', {
-        method: "POST",
-        body: JSON.stringify(fixtureJSON),
-        headers: {
-            "Content-type": "application/json; charset=UTF-8"
-        }
-    });
-
+async function saveScores(fixtureData) {
+    await putScores(fixtureData);
 }
 
 function createScoreDivElement(scoreNum, p1score = "", p2score = "", matchId = "", inverse = 'false') {
@@ -77,11 +94,11 @@ function createScoreDivElement(scoreNum, p1score = "", p2score = "", matchId = "
     const modalDivElementText = `
 <div class="row align-middle text-center p-1 modal-score" data-modal-match-id="${matchId}">
     <div class="col">
-        <input type="text" class="form-control text-center" name="p1s${scoreNum}" id="p1s${scoreNum}" value="${!reverseFix ? p1score : p2score}">
+        <input type="text" class="form-control text-center modal-score-input" name="p1s${scoreNum}" id="p1s${scoreNum}" value="${!reverseFix ? p1score : p2score}">
     </div>
     <div class="col">-</div>
     <div class="col">
-        <input type="text" class="form-control text-center" name="p2s${scoreNum}" id="p2s${scoreNum}" value="${!reverseFix ? p2score : p1score}">
+        <input type="text" class="form-control text-center modal-score-input" name="p2s${scoreNum}" id="p2s${scoreNum}" value="${!reverseFix ? p2score : p1score}">
     </div>
 </div > `;
 
@@ -123,19 +140,14 @@ function populateModal(target) {
         modalScoreDiv = scoreDivLocation.parentNode.appendChild(modalScoreDiv);
     }
 
-
-
 }
 
 // Function to update UI 
 async function displayFixtures() {
-    await fetchPlayers();
-    await fetchFixtures();
+    console.log('Displaying Fixture Table');
 
     // Draw empty table
     populateFixturesMatrix();
-
-    //console.log('Fixtures updated');
 }
 
 function populateFixturesMatrix() {
@@ -192,6 +204,7 @@ function populateFixturesMatrix() {
 
     // Now populate any match results
     fixtures.forEach((fixture) => {
+        //        console.log(fixture.id);
         const cells = document.querySelectorAll(`[data-fixture-id="${fixture.id}"]`);
         cells.forEach((cell) => {
             var reverseFix = cell.dataset.inverse === 'true';
@@ -225,8 +238,7 @@ function populateFixturesMatrix() {
 
 displayFixtures();
 
+function refreshUI() {
+    displayFixtures();
+}
 
-
-// Set up polling timer
-const pollingInterval = 15000; // 15 seconds
-setInterval(displayFixtures, pollingInterval);
