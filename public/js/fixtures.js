@@ -144,7 +144,7 @@ function populateModal(target) {
 
 // Function to update UI 
 async function displayFixtures() {
-    console.log('Displaying Fixture Table');
+    //console.log('Displaying Fixture Table');
 
     // Draw empty table
     populateFixturesMatrix();
