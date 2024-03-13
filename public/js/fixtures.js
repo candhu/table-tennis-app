@@ -25,32 +25,48 @@ scoresForm.addEventListener('submit', function (e) {
     var reverseFix = scoresModal.dataset.modalInverse === 'true';
 
     //scoresForm.checkValidity()
-    let isValid = true; // Flag to track overall validity
+    let isValid = true; // Flag to track overall 
+
+    // Remove all previous invalid feedbacks
+    const errorMessages = scoresModal.querySelectorAll(".invalid-feedback");
+    errorMessages.forEach(msg => msg.remove());
 
     // Validate the entered score values
     scoreInputs.forEach((input) => {
+        input.classList.remove("is-invalid");
         const inputValue = input.value.trim();
-        let errorMessage = input.parentElement.querySelector(".invalid-feedback");
 
         if (inputValue !== "" && (isNaN(inputValue) || parseInt(inputValue) < 0 || parseInt(inputValue) > 3)) {
             isValid = false; // Set flag to false if any input is invalid
 
             // Add error styling and message
             input.classList.add("is-invalid");
-            if (errorMessage === null) {
-                errorMessage = document.createElement("div");
-            }
+            errorMessage = document.createElement("div");
             errorMessage.classList.add("invalid-feedback");
             errorMessage.textContent = "Please enter a number between 0 and 3.";
             input.parentElement.appendChild(errorMessage);
-        } else {
-            // Remove error styling and message if previously added
-            input.classList.remove("is-invalid");
-            if (errorMessage) {
-                errorMessage.remove();
-            }
         }
     });
+
+    // Validate the combined score for all matches
+    const invalidScores = ['33', '32', '23'];
+    modalScores.forEach((score) => {
+        score.classList.remove("is-invalid");
+        const inputs = score.querySelectorAll('.modal-score-input');
+        const theScore = [...inputs].map(input => input.value).join('');
+
+        if (invalidScores.includes(theScore)) {
+            isValid = false; // Set flag to false if any input is invalid
+
+            // Add error styling and message
+            score.classList.add("is-invalid");
+            errorMessage = document.createElement("div");
+            errorMessage.classList.add("invalid-feedback","align-middle","text-center");
+            errorMessage.textContent = "Please enter a valid score.";
+            score.parentNode.insertBefore(errorMessage, score.nextSibling);
+        }
+
+    })
 
     if (!isValid) {
         return; // Prevent form submission if any input is invalid
@@ -63,17 +79,15 @@ scoresForm.addEventListener('submit', function (e) {
         matches: []
     };
 
-    let counter = 0;
-    modalScores.forEach((modalScore) => {
-        let p1score = formData.get(`p1s${counter}`) - 0;
-        let p2score = formData.get(`p2s${counter}`) - 0;
+    for (let i = 0; i < 4; i++) {
+        let p1score = formData.get(`p1s${i}`) - 0;
+        let p2score = formData.get(`p2s${i}`) - 0;
         if ((p1score + p2score) > 0) {
             fixtureJSON.matches.push({
                 scores: (!reverseFix) ? [p1score, p2score] : [p2score, p1score]
             });
         }
-        counter++;
-    });
+    }
 
     saveScores(fixtureJSON);
 
@@ -89,10 +103,10 @@ async function saveScores(fixtureData) {
     await putScores(fixtureData);
 }
 
-function createScoreDivElement(scoreNum, p1score = "", p2score = "", matchId = "", inverse = 'false') {
+function createScoreDivElement(scoreNum, p1score = "", p2score = "", inverse = 'false') {
     const reverseFix = (inverse === "true");
     const modalDivElementText = `
-<div class="row align-middle text-center p-1 modal-score" data-modal-match-id="${matchId}">
+<div class="row align-middle text-center p-1 modal-score rounded" >
     <div class="col">
         <input type="text" class="form-control text-center modal-score-input" name="p1s${scoreNum}" id="p1s${scoreNum}" value="${!reverseFix ? p1score : p2score}">
     </div>
@@ -135,7 +149,7 @@ function populateModal(target) {
         var modalScoreDiv = createScoreDivElement(i);
         if (scoreDivs[i]) {
             //console.log(scoreDivs[i], target.dataset.inverse);
-            modalScoreDiv = createScoreDivElement(i, scoreDivs[i].dataset.p1score, scoreDivs[i].dataset.p2score, scoreDivs[i].dataset.matchId, target.dataset.inverse);
+            modalScoreDiv = createScoreDivElement(i, scoreDivs[i].dataset.p1score, scoreDivs[i].dataset.p2score, target.dataset.inverse);
         }
         modalScoreDiv = scoreDivLocation.parentNode.appendChild(modalScoreDiv);
     }
@@ -225,7 +239,6 @@ function populateFixturesMatrix() {
                 if (!finishedScores.includes(matchScore) && !finishedScores.includes(revMatchScore)) {
                     scoreDiv.classList.add('unfinished');
                 }
-                scoreDiv.dataset.matchId = match.id;
                 scoreDiv.dataset.p1score = match.scores[0];
                 scoreDiv.dataset.p2score = match.scores[1];
 
