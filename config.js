@@ -2,8 +2,17 @@ require('dotenv').config();
 
 // Express
 const express = require('express');
+const https = require('https');
+const fs = require('fs');
 var app = express();
-var server = require('http').createServer(app);
+
+// Read SSL certificate files
+const sslOptions = {
+    key: fs.readFileSync(process.env.KEYFILE),
+    cert: fs.readFileSync(process.env.CERTFILE),
+  };
+  
+var httpsServer = https.createServer(sslOptions, app);
 
 //Auth0
 const auth0config = {
@@ -24,4 +33,4 @@ const db = firebaseadmin.firestore();
 const fixturesCollection = db.collection('fixtures');
 const playersCollection = db.collection('players');
 
-module.exports = { app, server, auth0config, serviceAccount, fixturesCollection, playersCollection, db };
+module.exports = { app, httpsServer, auth0config, serviceAccount, fixturesCollection, playersCollection, db };
