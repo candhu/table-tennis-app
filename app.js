@@ -4,7 +4,7 @@ require('dotenv').config();
 var indexRouter = require('./routes/index.js');
 var dataRouter = require('./routes/data.js');
 const { auth } = require('express-openid-connect');
-var { app, server, auth0config, fixturesCollection, playersCollection } = require('./config.js');
+var { app, httpsServer, auth0config, fixturesCollection, playersCollection } = require('./config.js');
 var { getFixtures, getPlayers } = require('./firebase.js');
 const { jsonParser, urlencodedParser, staticMiddleware } = require('./middleware.js');
 
@@ -30,13 +30,15 @@ app.get('/', (req, res) => {
 app.use('/', indexRouter);
 app.use('/data', dataRouter);
 
+
 const port = process.env.PORT || 3000;
-server = app.listen(port, () => {
+httpsServer = httpsServer.listen(port, () => {
   console.log(`Express is running on port ${port}`);
 });
 
+
 // Connect to socket.io
-const io = require('socket.io')(server);
+const io = require('socket.io')(httpsServer);
 io.on('connection', (socket) => {
   console.log('Client connected');
   if (playerCache) {
