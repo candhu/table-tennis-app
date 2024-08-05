@@ -49,7 +49,7 @@ scoresForm.addEventListener('submit', function (e) {
     });
 
     // Validate the combined score for all matches
-    const invalidScores = ['33', '32', '23'];
+    const invalidScores = ['33'];
     modalScores.forEach((score) => {
         score.classList.remove("is-invalid");
         const inputs = score.querySelectorAll('.modal-score-input');
@@ -169,7 +169,7 @@ function populateFixturesMatrix() {
     const table = fixturesTab;
     table.replaceChildren('');
 
-    const finishedScores = ["30", "31", "22"];
+    const finishedScores = ["30", "31", "32"];
 
     // Create the table header row
     const tabHead = table.createTHead();
