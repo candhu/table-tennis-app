@@ -3,7 +3,7 @@
     <span class="navbar-brand">
       <img
         src="https://static.skyassets.com/contentstack/assets/bltdc2476c7b6b194dd/bltc5f8334a1e6d9c74/654cc103bb246f040a4dc4cd/Sky_Logo_Small.png"
-        alt="SKY" width="50">
+        alt="SKY" width="50"><span class="h3 align-middle"> Table Tennis</span>
     </span>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-nav">
       <span class="navbar-toggler-icon"></span>
@@ -13,6 +13,18 @@
         <li class="nav-item"><a class="nav-link <%= active === 'table' ? 'active' : '' %>" href="/">Table</a></li>
         <li class="nav-item"><a class="nav-link <%= active === 'fixtures' ? 'active' : '' %>"
             href="/fixtures">Fixtures</a></li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle <%= active === 'history' ? 'active' : '' %>" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            History
+          </a>
+          <ul class="dropdown-menu">
+            <% historyCache.forEach(tournament => { %>
+            <li><a class="dropdown-item <%= tournamentID === tournament.id ? 'active' : '' %>"
+                href="/history?id=<%= tournament.id %>"><%= tournament.start + " - " + tournament.end %></a></li>
+            <% }) %>
+
+          </ul>
+        </li>
         <% if(!isAuthenticated) { %>
         <li class="nav-item"><a class="nav-link" href="/login/">Login</a></li>
         <% } else { %>

@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<%- include('partials/header') %>
+
+<body>
+    <div class="container">
+        <%- include('partials/nav', {active:'history', tournamentID:tournament.id}) %>
+        <h3>
+            <%= title %>
+        </h3>
+
+        <table id="leagueTab" class="table table-sm table-bordered align-middle text-center">
+            <thead>
+                <tr>
+                    <td></td>
+                    <th scope="col" class="bg-light">Played</th>
+                    <th scope="col" class="bg-light">Wins</th>
+                    <th scope="col" class="bg-light">Draws</th>
+                    <th scope="col" class="bg-light">Points</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Loop round the historical table data -->
+                <% let index = 0; %>
+                <% tournament.tableData.forEach(row => { %>
+                <tr>
+                    <th scope="row" class="<%= index === 0 ? 'text-bg-gold' : 'bg-light' %>"><%= row.name %></th>
+                    <td><%= row.matchesPlayed %></td>
+                    <td><%= row.wins %></td>
+                    <td><%= row.draws %></td>
+                    <td class="bg-light"><%= row.points %></td>
+                </tr>
+                <% index++; %>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+
+    <%- include('partials/script-bs') %>
+</body>
+
+</html>

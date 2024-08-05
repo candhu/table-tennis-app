@@ -1,4 +1,4 @@
-var { fixturesCollection, playersCollection } = require("./config.js");
+var { fixturesCollection, playersCollection, historyCollection } = require("./config.js");
 
 
 async function getFixtures() {
@@ -17,7 +17,7 @@ async function getFixtures() {
 
     // Wait for all promises to resolve before sending response
     const resolvedEntries = await Promise.all(entries);
-    return(resolvedEntries);
+    return (resolvedEntries);
 }
 
 async function getPlayers() {
@@ -34,7 +34,7 @@ async function getPlayers() {
 
     // Wait for all promises to resolve before sending response
     const resolvedEntries = await Promise.all(entries);
-    return(resolvedEntries);
+    return (resolvedEntries);
 }
 
 async function saveScores(fixtureData) {
@@ -43,4 +43,35 @@ async function saveScores(fixtureData) {
 
 }
 
-module.exports = { getFixtures , getPlayers, saveScores };
+// Populate history
+async function getTournamentsData() {
+    console.log('Reading tournament history data');
+    try {
+        const tournamentsData = await historyCollection.get();
+
+        tournamentsData.docs.forEach(doc => {
+            const tournamentData = doc.data();
+            historyCache.push({
+                id: doc.id,
+                start: doc.data().start,
+                end: doc.data().end,
+                tableData: JSON.parse(doc.data().historicalTableData)
+            });
+        });
+
+        return JSON.stringify(historyCache);
+    } catch (error) {
+        console.error("Error getting tournaments data:", error);
+        throw error;
+    }
+}
+
+getTournamentsData()
+    // .then(() => {
+    //     console.log("Tournaments data (JSON):", historyCache);
+    // })
+    .catch(error => {
+        console.error("Error:", error);
+    });
+
+module.exports = { getFixtures, getPlayers, saveScores };

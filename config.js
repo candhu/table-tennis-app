@@ -32,5 +32,9 @@ const db = firebaseadmin.firestore();
 
 const fixturesCollection = db.collection('fixtures');
 const playersCollection = db.collection('players');
+const historyCollection = db.collection('tournaments');
 
-module.exports = { app, httpsServer, auth0config, serviceAccount, fixturesCollection, playersCollection, db };
+// Global cache
+global.historyCache = [];  // History wont change outside of a server bounce, so fine to cache it globally
+
+module.exports = { app, httpsServer, auth0config, serviceAccount, fixturesCollection, playersCollection, historyCollection, db };

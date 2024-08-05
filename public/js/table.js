@@ -15,7 +15,7 @@ function populateLeague() {
     const table = leagueTab;
     table.replaceChildren('');
 
-    const finishedScores = ["30", "31", "13", "03", "22"];
+    const finishedScores = ["30", "31", "13", "03", "32", "23"];
 
     // Create the table header row
     const tabHead = table.createTHead();
@@ -25,11 +25,11 @@ function populateLeague() {
     headerRow.insertCell().textContent = ""; // Empty cell for player names
 
     // Add table headers for "Matches Played", "Wins", "Draws", and "Points"
-    const statHeaders = ["Played", "Wins", "Draws", "Points"];
+    const statHeaders = ["Matches<BR/>Played", "Match<BR/>Wins", "Games<BR/>Won", "Total<BR/>Points"];
     for (const statHeader of statHeaders) {
         const cell = headerRow.appendChild(document.createElement("th"));
         cell.setAttribute('scope', 'col');
-        cell.textContent = statHeader;
+        cell.innerHTML = statHeader;
         cell.classList.add('bg-light');
     }
 
@@ -41,8 +41,8 @@ function populateLeague() {
             playerID: player.id,
             name: player.name,
             matchesPlayed: 0,
-            wins: 0,
-            draws: 0,
+            matchWins: 0,
+            gameWins: 0,
             points: 0
         }
     });
@@ -59,26 +59,30 @@ function populateLeague() {
 
             // Only consider matches with finished games
             var matchScore = `${match.scores[0]}${match.scores[1]}`;
+
             if (finishedScores.includes(matchScore)) {
                 // Update matches played
                 playerStats[p1index].matchesPlayed++;
                 playerStats[p2index].matchesPlayed++;
 
                 // Update score
-                if (matchScore === "22") {
-                    // Match is a draw
-                    playerStats[p1index].draws++;
-                    playerStats[p1index].points++;
-                    playerStats[p2index].draws++;
-                    playerStats[p2index].points++;
-                } else if (matchScore === "31" || matchScore === "30") {
+                if (matchScore === "31" || matchScore === "30" || matchScore === "32") {
                     // Player 1 wins
-                    playerStats[p1index].wins++;
-                    playerStats[p1index].points += 3;
+                    playerStats[p1index].matchWins++;
+                    playerStats[p1index].gameWins += 3;
+                    playerStats[p1index].points += 5;
+                    // Add losing players games won - second digit of match score
+                    playerStats[p2index].gameWins += Number(matchScore[1]);
+                    playerStats[p2index].points += Number(matchScore[1]);
                 } else {
                     // Player 2 wins
-                    playerStats[p2index].wins++;
-                    playerStats[p2index].points += 3;
+                    playerStats[p2index].matchWins++;
+                    playerStats[p2index].gameWins += 3;
+                    playerStats[p2index].points += 5;
+                    // Add losing players games won - first digit of match score
+                    playerStats[p1index].gameWins += Number(matchScore[0]);
+                    playerStats[p1index].points += Number(matchScore[0]);
+
                 }
             }
 
@@ -89,8 +93,8 @@ function populateLeague() {
     playerStats.sort((a, b) => {
         if (b.points !== a.points) {
             return b.points - a.points;
-        } else if (b.wins !== a.wins) {
-            return b.wins - a.wins;
+        } else if (b.matchWins !== a.matchWins) {
+            return b.matchWins - a.matchWins;
         } else {
             return a.name.localeCompare(b.name);
         }
@@ -106,8 +110,8 @@ function populateLeague() {
 
         // Insert player stats into the table
         row.insertCell().textContent = player.matchesPlayed;
-        row.insertCell().textContent = player.wins;
-        row.insertCell().textContent = player.draws;
+        row.insertCell().textContent = player.matchWins;
+        row.insertCell().textContent = player.gameWins;
         ptsCell = row.insertCell();
         ptsCell.textContent = player.points;
         ptsCell.classList.add('bg-light');

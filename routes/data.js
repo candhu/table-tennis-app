@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-var { saveScores } = require('../firebase.js');
+var { saveScores, getFixtures } = require('../firebase.js');
 const { requiresAuth } = require('express-openid-connect');
 
 // Route to save a fixture
@@ -18,5 +18,11 @@ router.post('/saveFixtureScores', requiresAuth(), async (req, res) => {
     }
 
 });
+
+router.get('/getFixtures', requiresAuth(), async (req, res) => {
+    const fixtures = await getFixtures();
+    res.send(fixtures);
+})
+
 
 module.exports = router;
